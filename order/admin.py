@@ -18,6 +18,7 @@ class CartItemAdmin(admin.ModelAdmin):
 
 @admin.register(Orders)
 class OrderAdmin(admin.ModelAdmin):
+    list_display = ('cart','bill','is_payment_done')
     readonly_fields = ('bill',)
    
 @admin.register(Payment)

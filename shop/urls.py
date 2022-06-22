@@ -1,3 +1,5 @@
+from django.conf.urls.static import static
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path,include
 from main import views
@@ -24,6 +26,7 @@ router.register('address',cart_view.AddressViewset)
 router.register('payment',cart_view.PaymentViewset)
 
 router.register('register',accouts_view.RegisterViewset)
+router.register('image',accouts_view.ImageViewset)
 
 
 urlpatterns = [
@@ -32,3 +35,5 @@ urlpatterns = [
     path('api/login/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/login/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh')
 ]
+
+urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

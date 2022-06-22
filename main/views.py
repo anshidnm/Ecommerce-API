@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from django.db.models import Q
+from django.db.models import Prefetch
 from rest_framework.response import Response
 
 class CategoryViewset(viewsets.ModelViewSet):
@@ -37,7 +38,7 @@ class BrandViewset(viewsets.ModelViewSet):
 
 class ProductViewset(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset=Product.objects.select_related('category','brand').filter( Q(active=True) & Q(stock__gt=0) )
+    queryset=Product.objects.select_related('category').filter( Q(active=True) & Q(stock__gt=0) )
     serializer_class=ProductSerialaizer
     filter_backends = [DjangoFilterBackend,filters.SearchFilter]
     search_fields = ['name']
