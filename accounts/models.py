@@ -6,7 +6,7 @@ import os
 
 class Image_upload(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE,related_name='image')
-    image=models.ImageField(upload_to='pictures',default='./static/img/team_4.jpg')
+    image=models.ImageField(upload_to='pictures',default='/static/img/team_4.jpg')
     def __str__(self):
         return self.user.username
 

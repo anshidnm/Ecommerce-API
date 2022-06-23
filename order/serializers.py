@@ -1,5 +1,7 @@
+from dataclasses import fields
+from pyexpat import model
 from rest_framework import serializers
-from .models import cart,cartItem,Orders,Address,Payment
+from .models import cart,cartItem,Orders,Address,Payment,Payment_method,Delivery_method,Promocode
 from django.contrib.auth.models import User
 from accounts.serializers import UserSerializer 
 from main.serializers import ProductSerialaizer
@@ -17,15 +19,10 @@ class CartSerializer(serializers.ModelSerializer):
 
 class CartItemSerializer(serializers.ModelSerializer):
     product_details=serializers.SerializerMethodField()
-    cart_details=serializers.SerializerMethodField()
     def get_product_details(self,obj):
         product_obj=Product.objects.get(id=obj.product.id)
         nested_product_serializer=ProductSerialaizer(product_obj)
         return nested_product_serializer.data
-    def get_cart_details(self,obj):
-        cart_obj=cart.objects.get(id=obj.cart.id)
-        nested_cart_serializer=CartSerializer(cart_obj)
-        return nested_cart_serializer.data
     class Meta:
         model = cartItem
         fields = "__all__"
@@ -44,12 +41,6 @@ class AddressSerializer(serializers.ModelSerializer):
 
 class OrderSerailizer(serializers.ModelSerializer):
     address=serializers.SerializerMethodField()
-    cart_details=serializers.SerializerMethodField()
-    def get_cart_details(self,obj):
-        cart_obj=cart.objects.get(id=obj.cart.id)
-        nested_cart_serializer=CartSerializer(cart_obj)
-        return nested_cart_serializer.data
-
     def get_address(self,obj):
         adrress_obj=Address.objects.get(id=obj.cart.user.user_have_address.id)
         nested_address_serializer=AddressSerializer(adrress_obj)
@@ -61,13 +52,8 @@ class OrderSerailizer(serializers.ModelSerializer):
     
 
 class PaymentSerializer(serializers.ModelSerializer):
-    user_details=serializers.SerializerMethodField()
-    order_details=serializers.SerializerMethodField()
-    def get_user_details(self,obj):
-        user_obj=User.objects.get(id=obj.user.id)
-        nested_user_serializer=UserSerializer(user_obj)
-        return nested_user_serializer.data
-    def get_order_details(self,obj):
+    order=serializers.SerializerMethodField()
+    def get_order(self,obj):
         order_obj=Orders.objects.get(id=obj.order.id)
         nested_order_serializer=OrderSerailizer(order_obj)
         return nested_order_serializer.data
@@ -75,3 +61,17 @@ class PaymentSerializer(serializers.ModelSerializer):
         model=Payment
         fields="__all__"
 
+class DeliverySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Delivery_method
+        fields="__all__"
+
+class Pay_methodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Payment_method
+        fields="__all__"
+
+class PromoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Promocode
+        fields="__all__"

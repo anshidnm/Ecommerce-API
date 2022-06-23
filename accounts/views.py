@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
+from django.db.models import Prefetch
 
 from .models import Image_upload
 from .serializers import UserSerializer,ImageSerializer
@@ -9,13 +10,13 @@ from .serializers import UserSerializer,ImageSerializer
 
 class RegisterViewset(viewsets.ModelViewSet):
     permission_classes=[AllowAny]
-    queryset=User.objects.select_related('user_have_address').all()
+    queryset=User.objects.all()
     serializer_class=UserSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset=User.objects.select_related('user_have_address').all()
+        queryset=self.get_queryset().select_related('user_have_address')
         if queryset.exists():
-            serializer=UserSerializer(queryset,many=True)
+            serializer=self.get_serializer(queryset,many=True)
             return Response({'status':True,'data':serializer.data,'message':'user found'})
         else:
             return Response({'status':False,'data':None,'message':'user not found'})
@@ -28,40 +29,39 @@ class ImageViewset(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         try:
             queryset=Image_upload.objects.get(id=request.user.image.id)
-            serializer=ImageSerializer(queryset)
-            return Response({'status':True,'data':serializer.data,'message':'profile found'})
+            serializer=self.get_serializer(queryset)
+            return Response({'status':True,'data':serializer.data,'message':'profile image found'})
         except:
-            return Response({'status':False,'data':None,'message':'profile not found'})
+            return Response({'status':False,'data':None,'message':'profile image not found'})
     def create(self, request, *args, **kwargs):
         data=request.data
         data['user']=request.user.id
-        serializer=ImageSerializer(data=data)
+        serializer=self.get_serializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'status':True,'data':serializer.data,'message':'profile created'})
+            return Response({'status':True,'data':serializer.data,'message':'profile image created'})
         else:
-            return Response({'status':False,'data':None,'message':'profile not created'})
+            return Response({'status':False,'data':None,'message':'profile image not created'})
 
     def update(self, request, *args, **kwargs):
         try:
             data=request.data
             data['user']=request.user.id
             instance=self.get_object()
-            serializer=ImageSerializer(instance,data=data)
+            serializer=self.get_serializer(instance,data=data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({'status':True,'data':serializer.data,'message':'profile updated'})
+                return Response({'status':True,'data':serializer.data,'message':'profile image updated'})
             else:
-                return Response({'status':False,'data':None,'message':'profile not updated'})
+                return Response({'status':False,'data':None,'message':'profile image not updated'})
         except:
-            return Response({'status':False,'data':None,'message':'profile not updated'})
+            return Response({'status':False,'data':None,'message':'profile image not updated'})
 
     def destroy(self, request, *args, **kwargs):
         try:
             instance=self.get_object()
             instance.delete()
-            return Response({'status':True,'data':None,'message':'profile deleted'})
+            return Response({'status':True,'data':None,'message':'profile image deleted'})
         except:
-            return Response({'status':False,'data':None,'message':'profile not deleted'})
+            return Response({'status':False,'data':None,'message':'profile image not deleted'})
 
- 

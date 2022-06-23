@@ -1,3 +1,6 @@
+from distutils.command.upload import upload
+from email.policy import default
+from statistics import mode
 from django.db import models
 from django.db import models
 from django.contrib.auth.models import User
@@ -7,6 +10,7 @@ from django.dispatch import receiver
 
 class Category(models.Model):
     category_name=models.CharField(max_length=100)
+    image=models.ImageField(upload_to='categories',default='/static/img/team_4.jpg')
     active=models.BooleanField(default=True)
 
     def delete(self):
@@ -18,6 +22,7 @@ class Category(models.Model):
 
 class Brand(models.Model):
     brand_name=models.CharField(max_length=100)
+    image=models.ImageField(upload_to='brands',default='/static/img/team_4.jpg')
     active=models.BooleanField(default=True)
 
     def delete(self):
@@ -32,13 +37,17 @@ class Product(models.Model):
     name=models.CharField(max_length=100)
     price=models.FloatField()
     details=models.TextField()
+    image=models.ImageField(upload_to='products',default='/static/img/team_4.jpg')
     category=models.ForeignKey(Category,on_delete=models.CASCADE,related_name='productshavecategory')
     brand=models.ForeignKey(Brand,on_delete=models.CASCADE,related_name='productshavebrand')
     stock=models.PositiveBigIntegerField()
+    nutritions=models.TextField(default="vitamin C")
+    nutritions_per_amount=models.CharField(max_length=10,default="1kg")
     price_per_amount=models.CharField(max_length=100)
     rating=models.PositiveIntegerField(default=0)
     active=models.BooleanField(default=True)
     Special_offer=models.BooleanField(default=False)
+    order_count=models.PositiveIntegerField(default=0)
     rating_count=models.PositiveIntegerField(default=0)
     average=models.FloatField(default=0)
 
@@ -88,9 +97,6 @@ def update_review(sender,instance,*args,**kwargs):
         pdts.rating+=rate_int
         pdts.average=pdts.rating/pdts.rating_count
         pdts.save()
-
-
-        
 
 
 @receiver(sender=Review,signal=pre_delete)

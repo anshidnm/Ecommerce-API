@@ -1,6 +1,3 @@
-from dataclasses import fields
-import imp
-from pyexpat import model
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Image_upload
@@ -23,12 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class ImageSerializer(serializers.ModelSerializer):
-    user_details=serializers.SerializerMethodField()
-    def get_user_details(self,obj):
-        user_obj=User.objects.get(id=obj.user.id)
-        nested_user_serializer=UserSerializer(user_obj)
-        return nested_user_serializer.data
-    
     class Meta:
         model=Image_upload
-        fields="__all__"
+        exclude=('user',)
+
