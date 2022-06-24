@@ -1,6 +1,8 @@
 from email.headerregistry import Address
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated,AllowAny
+
+from constantVariables import *
 from .serializers import CartSerializer,CartItemSerializer,OrderSerailizer,AddressSerializer, Pay_methodSerializer,PaymentSerializer,DeliverySerializer,Payment_method,PromoSerializer
 from .models import cart,cartItem,Orders,Address,Payment,Delivery_method,Payment_method,Promocode
 from rest_framework.response import Response
@@ -15,9 +17,9 @@ class cartViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('user').filter(user=request.user)
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'cart found'})
+            return Response({'status':True,'data':serializer.data,'message':CART_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'cart not found'})
+            return Response({'status':False,'data':None,'message':CART_NOT_FOUND})
 
     def create(self, request, *args, **kwargs):
         data=request.data
@@ -25,16 +27,16 @@ class cartViewset(viewsets.ModelViewSet):
         serializer=self.get_serializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'status':True,'data':serializer.data,'message':'cart created'})
+            return Response({'status':True,'data':serializer.data,'message':CART_CREATED})
         else:
-            return Response({'status':False,'data':None,'message':'cart not created'})
+            return Response({'status':False,'data':None,'message':CART_NOT_CREATED})
     def destroy(self, request, *args, **kwargs):
         try:
             instance=self.get_object()
             instance.delete()
-            return Response({'status':True,'data':None,'message':'cart deleted'})
+            return Response({'status':True,'data':None,'message':CART_DELETED})
         except:
-            return Response({'status':False,'data':None,'message':'cart not deleted'})
+            return Response({'status':False,'data':None,'message':CART_NOT_DELETED})
            
 
 class cartItemViewset(viewsets.ModelViewSet):
@@ -46,9 +48,9 @@ class cartItemViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('product','cart').filter(cart=request.user.cart)
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'CartItem found'})
+            return Response({'status':True,'data':serializer.data,'message':CART_ITEM_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'CartItem not found'})
+            return Response({'status':False,'data':None,'message':CART_ITEM_NOT_FOUND})
     
     def create(self, request, *args, **kwargs):
         data=request.data
@@ -56,9 +58,9 @@ class cartItemViewset(viewsets.ModelViewSet):
         serializer=self.get_serializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'status':True,'data':serializer.data,'message':'CartItem created'})
+            return Response({'status':True,'data':serializer.data,'message':CART_ITEM_CREATED})
         else:
-            return Response({'status':False,'data':None,'message':'CartItem not created'})
+            return Response({'status':False,'data':None,'message':CART_ITEM_NOT_CREATED})
 
     def update(self, request, *args, **kwargs):
         try:
@@ -68,19 +70,19 @@ class cartItemViewset(viewsets.ModelViewSet):
             serializer=self.get_serializer(instance,data=data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({'status':True,'data':serializer.data,'message':'CartItem updated'})
+                return Response({'status':True,'data':serializer.data,'message':CART_ITEM_UPDATED})
             else:
-                return Response({'status':False,'data':None,'message':'CartItem not updated'})
+                return Response({'status':False,'data':None,'message':CART_ITEM_NOT_UPDATED})
         except:
-            return Response({'status':False,'data':None,'message':'CartItem not updated'})
+            return Response({'status':False,'data':None,'message':CART_ITEM_NOT_UPDATED})
     
     def destroy(self, request, *args, **kwargs):
         try:
             instance=self.get_object()
             instance.delete()
-            return Response({'status':True,'data':None,'message':'CartItem deleted'})
+            return Response({'status':True,'data':None,'message':CART_ITEM_DELETED})
         except:
-            return Response({'status':False,'data':None,'message':'CartItem not deleted'})
+            return Response({'status':False,'data':None,'message':CART_ITEM_NOT_DELETED})
 
            
             
@@ -94,9 +96,9 @@ class OrderViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('cart').filter(cart=request.user.cart)
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'Order found'})
+            return Response({'status':True,'data':serializer.data,'message':ORDER_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'Order not found'})
+            return Response({'status':False,'data':None,'message':ORDER_NOT_FOUND})
             
     def create(self, request, *args, **kwargs):
         data=request.data
@@ -105,17 +107,17 @@ class OrderViewset(viewsets.ModelViewSet):
         serializer=self.get_serializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'status':True,'data':serializer.data,'message':'Order Created'})
+            return Response({'status':True,'data':serializer.data,'message':ORDER_CREATED})
         else:
-            return Response({'status':False,'data':None,'message':'Order not Created'})
+            return Response({'status':False,'data':None,'message':ORDER_NOT_CREATED})
 
     def destroy(self, request, *args, **kwargs):
         try:
             instance=self.get_object()
             instance.delete()
-            return Response({'status':True,'data':None,'message':'Order Deleted'})            
+            return Response({'status':True,'data':None,'message':ORDER_DELETED})            
         except:
-            return Response({'status':False,'data':None,'message':'Order not Deleted'})
+            return Response({'status':False,'data':None,'message':ORDER_NOT_DELETED})
 
 class AddressViewset(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated]
@@ -126,9 +128,9 @@ class AddressViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('user').filter(user=request.user)
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'Address Found'})
+            return Response({'status':True,'data':serializer.data,'message':ADDRESS_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'Addrres not Found'})
+            return Response({'status':False,'data':None,'message':ADDRESS_NOT_FOUND})
 
     def create(self, request, *args, **kwargs):
         data=request.data
@@ -136,17 +138,17 @@ class AddressViewset(viewsets.ModelViewSet):
         serializer=self.get_serializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'status':True,'data':serializer.data,'message':'Address Created'})
+            return Response({'status':True,'data':serializer.data,'message':ADDRESS_CREATED})
         else:
-            return Response({'status':False,'data':None,'message':'Addrres not Created'})
+            return Response({'status':False,'data':None,'message':ADDRESS_NOT_CREATED})
 
     def destroy(self, request, *args, **kwargs):
         try:
             instance=self.get_object()
             instance.delete()
-            return Response({'status':True,'data':None,'message':'Addrres  Deleted'})
+            return Response({'status':True,'data':None,'message':ADDRESS_DELETED})
         except:
-            return Response({'status':False,'data':None,'message':'Addrres not Deleted'})
+            return Response({'status':False,'data':None,'message':ADDRESS_NOT_DELETED})
 
 
         
@@ -159,27 +161,31 @@ class PaymentViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('order','user').filter(user=request.user)
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'Payment Found'})
+            return Response({'status':True,'data':serializer.data,'message':PAYMENT_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'Payment not Found'})
+            return Response({'status':False,'data':None,'message':PAYMENT_NOT_FOUND})
 
     def create(self, request, *args, **kwargs):
         data=request.data
         data['user']=request.user.id
         serializer=self.get_serializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'status':True,'data':serializer.data,'message':'Payment Created'})
-        else:
-            return Response({'status':False,'data':None,'message':'Payment not Created'})
+        try:
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'status':True,'data':serializer.data,'message':PAYMENT_ADDED})
+            else:
+                return Response({'status':False,'data':None,'message':PAYMENT_NOT_ADDED})
+        except:
+            return Response({'status':False,'data':None,'message':PAYMENT_NOT_ADDED})
+
 
     def destroy(self, request, *args, **kwargs):
         try:
             instance=self.get_object()
             instance.delete()
-            return Response({'status':True,'data':None,'message':'Payment Deleted'})
+            return Response({'status':True,'data':None,'message':PAYMENT_DELETED})
         except:
-            return Response({'status':False,'data':None,'message':'Payment not Deleted'})
+            return Response({'status':False,'data':None,'message':PAYMENT_NOT_DELETED})
 
 class DeliveryViewset(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated]
@@ -190,9 +196,9 @@ class DeliveryViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset()
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'delivery method found'})
+            return Response({'status':True,'data':serializer.data,'message':DELIVERY_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'Delivery method not found'})
+            return Response({'status':False,'data':None,'message':DELIVERY_NOT_FOUND})
 
 class PromoViewset(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated]
@@ -203,9 +209,9 @@ class PromoViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset()
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'promocode found'})
+            return Response({'status':True,'data':serializer.data,'message':PROMO_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'prommocode not found'})
+            return Response({'status':False,'data':None,'message':PROMO_NOT_FOUND})
 
 class PaymethodViewset(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated]
@@ -216,6 +222,6 @@ class PaymethodViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset()
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'payment method found'})
+            return Response({'status':True,'data':serializer.data,'message':PAY_METHOD_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'payment method not found'})
+            return Response({'status':False,'data':None,'message':PAY_METHOD_NOT_FOUND})

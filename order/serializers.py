@@ -3,7 +3,7 @@ from pyexpat import model
 from rest_framework import serializers
 from .models import cart,cartItem,Orders,Address,Payment,Payment_method,Delivery_method,Promocode
 from django.contrib.auth.models import User
-from accounts.serializers import UserSerializer 
+from accounts.serializers import UserSerializer,UserShortSerializer
 from main.serializers import ProductSerialaizer
 from main.models import Product
 
@@ -31,7 +31,7 @@ class AddressSerializer(serializers.ModelSerializer):
     user_details=serializers.SerializerMethodField()
     def get_user_details(self,obj):
         user_obj=User.objects.get(id=obj.user.id)
-        nested_user_serializer=UserSerializer(user_obj)
+        nested_user_serializer=UserShortSerializer(user_obj)
         return nested_user_serializer.data
 
     class Meta:

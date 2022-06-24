@@ -1,5 +1,7 @@
+
+from constantVariables import *
 from . models import Review,Category,Brand,Product,favourite
-from . serializers import ProductSerialaizer,CategorySerialaizer,BrandSerialaizer,ReviewSerialaizer,FavouriteSerializer,FavoriteListSerializer,GrocerySerializer
+from . serializers import ProductSerialaizer,CategorySerialaizer,BrandSerialaizer,ReviewSerialaizer,FavouriteSerializer,FavoriteListSerializer,GrocerySerializer,ProductShortSerializer
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
@@ -18,17 +20,17 @@ class CategoryViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().prefetch_related(Prefetch('productshavecategory',Product.objects.all()))
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'Category found'})
+            return Response({'status':True,'data':serializer.data,'message':CATEGORY_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'Category not found'})
+            return Response({'status':False,'data':None,'message':CATEGORY_NOT_FOUND})
     
     def retrieve(self, request, *args, **kwargs):
         try:
             instance=self.get_object()
             serializer=self.get_serializer(instance)
-            return Response({'status':True,'data':serializer.data,'message':'Category Found'})
+            return Response({'status':True,'data':serializer.data,'message':CATEGORY_FOUND})
         except:
-            return Response({'status':False,'data':None,'message':'Category not Found'})
+            return Response({'status':False,'data':None,'message':CATEGORY_NOT_FOUND})
 
 
 class BrandViewset(viewsets.ModelViewSet):
@@ -40,9 +42,9 @@ class BrandViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset()
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'Brands found'})
+            return Response({'status':True,'data':serializer.data,'message':BRAND_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'Brands not found'})
+            return Response({'status':False,'data':None,'message':BRAND_NOT_FOUND})
     
 
 class ProductViewset(viewsets.ModelViewSet):
@@ -57,17 +59,17 @@ class ProductViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('category','brand')
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'Products found'})
+            return Response({'status':True,'data':serializer.data,'message':PRODUCT_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'Products not found'})
+            return Response({'status':False,'data':None,'message':PRODUCT_NOT_FOUND})
           
     def retrieve(self, request, *args, **kwargs):
         try:
             instance=self.get_object()
             serializer=self.get_serializer(instance)
-            return Response({'status':True,'data':serializer.data,'message':'product found'})
+            return Response({'status':True,'data':serializer.data,'message':PRODUCT_FOUND})
         except:
-            return Response({'status':False,'data':None,'message':'product not found'})
+            return Response({'status':False,'data':None,'message':PRODUCT_NOT_FOUND})
 
 
 class ReviewViewset(viewsets.ModelViewSet):
@@ -79,9 +81,9 @@ class ReviewViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('user_reviewed','product_reviewed')
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'Review found'})
+            return Response({'status':True,'data':serializer.data,'message':REVIEW_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'Review not found'})
+            return Response({'status':False,'data':None,'message':REVIEW_NOT_FOUND})
 
     def create(self, request, *args, **kwargs):
         data=request.data
@@ -89,9 +91,9 @@ class ReviewViewset(viewsets.ModelViewSet):
         serializer=self.get_serializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'status':True,'data':serializer.data,'message':'Review Added'})
+            return Response({'status':True,'data':serializer.data,'message':REVIEW_ADDED})
         else:
-            return Response({'status':False,'data':None,'message':'Review cannot add'})
+            return Response({'status':False,'data':None,'message':REVIEW_NOT_ADDED})
     
     def update(self, request, *args, **kwargs):
         try:
@@ -101,20 +103,20 @@ class ReviewViewset(viewsets.ModelViewSet):
             serializer=self.get_serializer(instance,data=data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({'status':True,'data':serializer.data,'message':'Review Changed'})
+                return Response({'status':True,'data':serializer.data,'message':REVIEW_CHANGED})
             else:
-                return Response({'status':False,'data':None,'message':'Review cannot Changed'})
+                return Response({'status':False,'data':None,'message':REVIEW_NOT_CHANGED})
         except:
-                return Response({'status':False,'data':None,'message':'Review cannot Changed'})
+                return Response({'status':False,'data':None,'message':REVIEW_NOT_CHANGED})
 
     
     def destroy(self, request, *args, **kwargs):
         try:
             instance=self.get_object()
             instance.delete()
-            return Response({'status':True,'data':None,'message':'Review deleted'})       
+            return Response({'status':True,'data':None,'message':REVIEW_DELETED})       
         except:
-            return Response({'status':False,'data':None,'message':'Review cannot deleted'})       
+            return Response({'status':False,'data':None,'message':REVIEW_NOT_DELETED})       
             
 class FavouriteViewset(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated]
@@ -125,9 +127,9 @@ class FavouriteViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('user','product').filter(user=user)
         if queryset.exists():
             serializer=FavoriteListSerializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'Your favourites'})
+            return Response({'status':True,'data':serializer.data,'message':FAVOURITE_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'favourites not found'})
+            return Response({'status':False,'data':None,'message':FAVOURITE_NOT_FOUND})
 
     def create(self, request, *args, **kwargs):
         user=request.user
@@ -136,17 +138,17 @@ class FavouriteViewset(viewsets.ModelViewSet):
         serializer=self.get_serializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'status':True,'data':serializer.data,'message':'Item added to favourite'})
+            return Response({'status':True,'data':serializer.data,'message':FAVOURITE_ADDED})
         else:
-            return Response({'status':False,'data':None,'message':'Item not added to favourite'})
+            return Response({'status':False,'data':None,'message':FAVOURITE_NOT_ADDED})
 
     def destroy(self, request, *args, **kwargs):
         try:
             instance=self.get_object()
             instance.delete()
-            return Response({'status':True,'data':None,'message':'Item removed from favourite'})
+            return Response({'status':True,'data':None,'message':FAVOURITE_DELETED})
         except:
-            return Response({'status':False,'data':None,'message':'Item cannot removed'})
+            return Response({'status':False,'data':None,'message':FAVOURITE_NOT_DELETED})
 
 
         
@@ -161,9 +163,9 @@ class SpecialOfferViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('category','brand').filter( Q(active=True) & Q(stock__gt=0) & Q(Special_offer=True))
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'special offer found'})
+            return Response({'status':True,'data':serializer.data,'message':SPECIAL_OFFER_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'special offer not found'})
+            return Response({'status':False,'data':None,'message':SPECIAL_OFFER_NOT_FOUND})
 
 
 class toptwospViewset(viewsets.ModelViewSet):
@@ -175,9 +177,9 @@ class toptwospViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('category','brand').filter( Q(active=True) & Q(stock__gt=0) & Q(Special_offer=True))[:2]
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'top 2 special offer found'})
+            return Response({'status':True,'data':serializer.data,'message':SPECIAL_OFFER_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'top 2 special offer not found'})
+            return Response({'status':False,'data':None,'message':SPECIAL_OFFER_NOT_FOUND})
 
 class BestSellingViewset(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated]
@@ -188,9 +190,9 @@ class BestSellingViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('category','brand').filter(Q(active=True) & Q(stock__gt=0) & Q(order_count__gt=0)).order_by('-order_count')
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'Bestselling found'})
+            return Response({'status':True,'data':serializer.data,'message':BEST_SELLING_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'Bestselling not found'})
+            return Response({'status':False,'data':None,'message':BEST_SELLING_NOT_FOUND})
 
 class toptwobsViewset(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated]
@@ -201,9 +203,9 @@ class toptwobsViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset().select_related('category','brand').filter(Q(active=True) & Q(stock__gt=0) & Q(order_count__gt=0)).order_by('-order_count')[:2]
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'top 2 Bestselling found'})
+            return Response({'status':True,'data':serializer.data,'message':BEST_SELLING_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'top 2 Bestselling not found'})
+            return Response({'status':False,'data':None,'message':BEST_SELLING_NOT_FOUND})
 
 class GroceryViewset(viewsets.ModelViewSet):
     permission_classes=[IsAuthenticated]
@@ -214,6 +216,19 @@ class GroceryViewset(viewsets.ModelViewSet):
         queryset=self.get_queryset()[:2]
         if queryset.exists():
             serializer=self.get_serializer(queryset,many=True)
-            return Response({'status':True,'data':serializer.data,'message':'top 2 grocery found'})
+            return Response({'status':True,'data':serializer.data,'message':CATEGORY_FOUND})
         else:
-            return Response({'status':False,'data':None,'message':'top 2 grocery not found'})
+            return Response({'status':False,'data':None,'message':CATEGORY_NOT_FOUND})
+
+class SpecificReviewViewset(viewsets.ModelViewSet):
+    permission_classes=[IsAuthenticated]
+    serializer_class=ReviewSerialaizer
+    queryset=Review.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset=self.get_queryset().select_related('user_reviewed','product_reviewed').filter(product_reviewed=request.data['product_reviewed'])
+        if queryset.exists():
+            serializer=self.get_serializer(queryset,many=True)
+            return Response({'status':True,'data':serializer.data,'message':REVIEW_FOUND})
+        else:
+            return Response({'status':False,'data':None,'message':REVIEW_NOT_FOUND})

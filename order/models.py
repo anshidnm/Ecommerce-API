@@ -4,6 +4,7 @@ from main.models import Product
 from datetime import datetime
 from django.db.models.signals import pre_save,pre_delete,post_save
 from django.dispatch import receiver
+from accounts.models import Notification
 
 
 # models
@@ -73,7 +74,7 @@ class Orders(models.Model):
 
 
 class Payment(models.Model):
-    order=models.ForeignKey(Orders,on_delete=models.CASCADE)
+    order=models.OneToOneField(Orders,on_delete=models.CASCADE)
     user=models.ForeignKey(User,on_delete=models.CASCADE,blank=True)
     amount=models.IntegerField(blank=True)
     made_on=models.DateTimeField(default=datetime.now)
@@ -102,15 +103,18 @@ def order_update(sender,instance,*args,**kwargs):
         pdt.save()
         temp=temporaryitem.objects.create(product=i.product,cart=i.cart,quantity=i.quantity,total=i.total)
         temp.save()
-    discount=instance.promocode.discount/100
-    discount_amount=obj.grand_total*discount
-    instance.amount_to_pay=obj.grand_total-discount_amount
+    if instance.promocode:
+        discount=instance.promocode.discount/100
+        discount_amount=obj.grand_total*discount
+        instance.amount_to_pay=obj.grand_total-discount_amount
+    else:
+        instance.amount_to_pay=obj.grand_total
     item.delete()
-
+    notification=Notification.objects.create(user=instance.cart.user,title="Order Placed",text="Your order has been placed successfully")
+    notification.save()
 
 @receiver(sender=Orders,signal=pre_delete)
 def order_update(sender,instance,*args,**kwargs):
-    obj=cart.objects.get(id=instance.cart.id)
     item=temporaryitem.objects.filter(cart=instance.cart)
     for i in item:
         pdt=Product.objects.get(id=i.product.id)
@@ -118,6 +122,9 @@ def order_update(sender,instance,*args,**kwargs):
         pdt.order_count-=1
         pdt.save()
     item.delete()
+    notification=Notification.objects.create(user=instance.cart.user,title="Order Cancelled",text="Your order has been cancelled")
+    notification.save()
+
 
 #item reciever
 
@@ -156,3 +163,12 @@ def update_order_bill(sender,instance,*args,**kwargs):
     order_obj=Orders.objects.get(id=instance.order.id)
     order_obj.amount_paid=instance.amount
     order_obj.save()
+    notification=Notification.objects.create(user=instance.user,title="Payment Done",text="You paid successfully")
+    notification.save()
+
+@receiver(sender=Payment,signal=pre_delete)
+def cancel_payment(sender,instance,*args,**kwargs):
+    obj=Orders.objects.get(id=instance.order.id)
+    obj.delete()
+    notification=Notification.objects.create(user=instance.user,title="Payment Refund",text="Your payment will be refunded soon")
+    notification.save()

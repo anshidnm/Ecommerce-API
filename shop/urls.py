@@ -21,6 +21,7 @@ router.register('toptwosp',views.toptwospViewset)
 router.register('bestselling',views.BestSellingViewset)
 router.register('toptwobs',views.toptwobsViewset)
 router.register('goceries',views.GroceryViewset)
+router.register('specificproductreview',views.SpecificReviewViewset)
 
 
 router.register('cart',cart_view.cartViewset)
@@ -34,7 +35,8 @@ router.register('paymethod',cart_view.PaymethodViewset)
 
 router.register('register',accouts_view.RegisterViewset)
 router.register('image',accouts_view.ImageViewset)
-
+router.register('usershort',accouts_view.UserShortViewset)
+router.register('notification',accouts_view.NotificationViewset)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
