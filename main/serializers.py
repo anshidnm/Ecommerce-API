@@ -30,9 +30,9 @@ class CategorySerialaizer(serializers.ModelSerializer):
 
 
 class ReviewSerialaizer(serializers.ModelSerializer):
-    user_reviewed=serializers.SerializerMethodField()
+    user_details=serializers.SerializerMethodField()
     product_details=serializers.SerializerMethodField()
-    def get_user_reviewed(self,obj):
+    def get_user_details(self,obj):
         user_obj=User.objects.get(id=obj.user_reviewed.id)
         nested_user_serializer=UserShortSerializer(user_obj)
         return nested_user_serializer.data

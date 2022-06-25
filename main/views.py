@@ -89,11 +89,15 @@ class ReviewViewset(viewsets.ModelViewSet):
         data=request.data
         data['user_reviewed']=request.user.id
         serializer=self.get_serializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'status':True,'data':serializer.data,'message':REVIEW_ADDED})
-        else:
+        try:
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'status':True,'data':serializer.data,'message':REVIEW_ADDED})
+            else:
+                return Response({'status':False,'data':None,'message':REVIEW_NOT_ADDED})
+        except:
             return Response({'status':False,'data':None,'message':REVIEW_NOT_ADDED})
+
     
     def update(self, request, *args, **kwargs):
         try:

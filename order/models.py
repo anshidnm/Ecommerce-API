@@ -168,7 +168,5 @@ def update_order_bill(sender,instance,*args,**kwargs):
 
 @receiver(sender=Payment,signal=pre_delete)
 def cancel_payment(sender,instance,*args,**kwargs):
-    obj=Orders.objects.get(id=instance.order.id)
-    obj.delete()
     notification=Notification.objects.create(user=instance.user,title="Payment Refund",text="Your payment will be refunded soon")
     notification.save()

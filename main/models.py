@@ -63,6 +63,7 @@ class Review(models.Model):
     user_reviewed=models.ForeignKey(User,on_delete=models.CASCADE)
     product_reviewed=models.ForeignKey(Product,on_delete=models.CASCADE)
     text=models.CharField(max_length=1,choices=review_choice)
+    user_opinion=models.TextField(blank=True)
 
     class Meta:
         unique_together=('user_reviewed','product_reviewed',)

@@ -16,7 +16,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('user_reviewed','product_reviewed','text')
+    list_display = ('user_reviewed','product_reviewed','text','user_opinion')
 
 @admin.register(favourite)
 class FavoriteAdmin(admin.ModelAdmin):
