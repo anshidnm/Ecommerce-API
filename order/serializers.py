@@ -1,5 +1,4 @@
-from dataclasses import fields
-from pyexpat import model
+
 from rest_framework import serializers
 from .models import cart,cartItem,Orders,Address,Payment,Payment_method,Delivery_method,Promocode
 from django.contrib.auth.models import User
@@ -50,12 +49,16 @@ class OrderSerailizer(serializers.ModelSerializer):
         model=Orders
         fields="__all__"
     
+class OrderShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Orders
+        fields=['id','cart','delivery_method','payment_method','promocode']
 
 class PaymentSerializer(serializers.ModelSerializer):
     order=serializers.SerializerMethodField()
     def get_order(self,obj):
         order_obj=Orders.objects.get(id=obj.order.id)
-        nested_order_serializer=OrderSerailizer(order_obj)
+        nested_order_serializer=OrderShortSerializer(order_obj)
         return nested_order_serializer.data
     class Meta:
         model=Payment
