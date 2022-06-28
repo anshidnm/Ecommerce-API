@@ -1,5 +1,3 @@
-from itertools import product
-from tkinter import CASCADE
 from django.db import models
 from django.contrib.auth.models import User
 from main.models import Product
@@ -38,7 +36,6 @@ class Address(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE,related_name='user_have_address')
     zone=models.CharField(max_length=100)
     area=models.CharField(max_length=100)
-    mobile=models.PositiveBigIntegerField()
  
     def __str__(self):
         return self.user.username

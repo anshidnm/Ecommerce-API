@@ -3,9 +3,13 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
 from django.db.models import Prefetch
-from .models import Image_upload,Notification
-from .serializers import UserSerializer,ImageSerializer,UserShortSerializer,NotificationSerializer
+from .models import Image_upload,Notification,Mobile
+from .serializers import UserSerializer,ImageSerializer,UserShortSerializer,NotificationSerializer,MobileSerializer
 from constantVariables import *
+import random
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 
 class RegisterViewset(viewsets.ModelViewSet):
     permission_classes=[AllowAny]
@@ -110,3 +114,18 @@ class NotificationViewset(viewsets.ModelViewSet):
             return Response({'status':True,'data':None,'message':NOTIFICATION_DELETED})
         except:
             return Response({'status':False,'data':None,'message':NOTIFICATION_NOT_DELETED})
+
+class Otpviewset(viewsets.ModelViewSet):
+    permission_classes=[AllowAny]
+    queryset=Mobile.objects.all()
+
+    @method_decorator(cache_page(30,cache='otp_cache'))
+    def list(self, request, *args, **kwargs):
+        number=request.data['mobile_number']
+        print(number)
+        try:
+            queryset=self.get_queryset().get(mobile_number=number)
+            otp=random.randint(1000,9999)
+            return Response({'status':True,'otp':otp,'message':'Otp Sent'})
+        except:
+            return Response({'status':False,'data':None,'message':'Otp not Sent'})

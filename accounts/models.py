@@ -5,6 +5,8 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from datetime import datetime
 import os
+from django.core.validators import MinLengthValidator
+
 
 class Image_upload(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE,related_name='image')
@@ -25,6 +27,11 @@ class Notification(models.Model):
 
     def __str__(self):
         return self.title
+
+class Mobile(models.Model):
+    user=models.OneToOneField(User,related_name='mobile',on_delete=models.CASCADE)
+    country_code=models.CharField(max_length=5)
+    mobile_number=models.PositiveBigIntegerField()
 
 @receiver(signal=pre_delete,sender=Image_upload)
 def delete_image(sender,instance,*args,**kwargs):

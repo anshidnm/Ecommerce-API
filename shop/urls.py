@@ -37,6 +37,8 @@ router.register('register',accouts_view.RegisterViewset)
 router.register('image',accouts_view.ImageViewset)
 router.register('usershort',accouts_view.UserShortViewset)
 router.register('notification',accouts_view.NotificationViewset)
+router.register('mobile',accouts_view.Otpviewset)
+# router.register('confirm',accouts_view.ConfirmViewset)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

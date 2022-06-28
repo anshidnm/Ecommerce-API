@@ -3,7 +3,7 @@ from . models import cart,cartItem,Orders,Address,Payment,temporaryitem,Payment_
 
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
-    list_display =('user','zone','area','mobile')
+    list_display =('user','zone','area')
 
 @admin.register(cart)
 class CartAdmin(admin.ModelAdmin):
