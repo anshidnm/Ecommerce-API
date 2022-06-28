@@ -21,3 +21,4 @@ class ReviewAdmin(admin.ModelAdmin):
 @admin.register(favourite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_filter =('user',)
+

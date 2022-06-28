@@ -1,3 +1,5 @@
+from itertools import product
+from tkinter import CASCADE
 from django.db import models
 from django.contrib.auth.models import User
 from main.models import Product
@@ -5,6 +7,8 @@ from datetime import datetime
 from django.db.models.signals import pre_save,pre_delete,post_save
 from django.dispatch import receiver
 from accounts.models import Notification
+from master.models import MasterProduct
+
 
 
 # models
@@ -39,6 +43,10 @@ class Address(models.Model):
     def __str__(self):
         return self.user.username
 
+    class Meta:
+        verbose_name_plural = "Addresses"
+
+
 class cart(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=datetime.now)
@@ -72,6 +80,9 @@ class Orders(models.Model):
     def __str__(self):
         return "order_id__{} made by {}".format(self.id,self.cart.user.username)
 
+    class Meta:
+        verbose_name_plural = "Orderes"
+
 
 class Payment(models.Model):
     order=models.OneToOneField(Orders,on_delete=models.CASCADE)
@@ -90,6 +101,7 @@ class temporaryitem(models.Model):
     
     def __str__(self):
         return f"{self.product.name}__{self.cart.user.username}"
+
 #Order reciever
 
 @receiver(sender=Orders,signal=pre_save)
@@ -97,8 +109,10 @@ def order_update(sender,instance,*args,**kwargs):
     obj=cart.objects.get(id=instance.cart.id)
     item=cartItem.objects.filter(cart=instance.cart)
     for i in item:
+        master_pdt=MasterProduct.objects.get(id=i.product.master_product.id)
         pdt=Product.objects.get(id=i.product.id)
-        pdt.stock-=i.quantity
+        master_pdt.stock-=i.quantity
+        master_pdt.save()
         pdt.order_count+=1
         pdt.save()
         temp=temporaryitem.objects.create(product=i.product,cart=i.cart,quantity=i.quantity,total=i.total)
@@ -117,8 +131,10 @@ def order_update(sender,instance,*args,**kwargs):
 def order_update(sender,instance,*args,**kwargs):
     item=temporaryitem.objects.filter(cart=instance.cart)
     for i in item:
+        master_pdt=MasterProduct.objects.get(id=i.product.master_product.id)
         pdt=Product.objects.get(id=i.product.id)
-        pdt.stock+=i.quantity
+        master_pdt.stock+=i.quantity
+        master_pdt.save()
         pdt.order_count-=1
         pdt.save()
     item.delete()

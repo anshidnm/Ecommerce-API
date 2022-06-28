@@ -1,12 +1,10 @@
-from distutils.command.upload import upload
-from email.policy import default
-from statistics import mode
-from django.db import models
+
+from doctest import master
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import pre_save,pre_delete
+from django.db.models.signals import pre_save,pre_delete,post_save
 from django.dispatch import receiver
-
+from master.models import MasterProduct
 
 class Category(models.Model):
     category_name=models.CharField(max_length=100)
@@ -34,6 +32,7 @@ class Brand(models.Model):
         return self.brand_name
 
 class Product(models.Model):
+    master_product=models.OneToOneField(MasterProduct,on_delete=models.CASCADE,default=2,related_name='product')
     name=models.CharField(max_length=100)
     price=models.FloatField()
     details=models.TextField()
@@ -50,7 +49,7 @@ class Product(models.Model):
     order_count=models.PositiveIntegerField(default=0)
     rating_count=models.PositiveIntegerField(default=0)
     average=models.FloatField(default=0)
-
+    
     def delete(self):
         self.active=False
         self.save(update_fields=('active',))
@@ -102,7 +101,7 @@ def update_review(sender,instance,*args,**kwargs):
 
 @receiver(sender=Review,signal=pre_delete)
 def update_review(sender,instance,*args,**kwargs):
-    rate=instance.text
+    rate=instance.text          
     rate_int=int(rate)
     pdts=Product.objects.get(id=instance.product_reviewed.id)
     pdts.rating_count-=1
@@ -112,3 +111,16 @@ def update_review(sender,instance,*args,**kwargs):
     else:
         pdts.average=0
     pdts.save()
+
+@receiver(sender=Product,signal=pre_save)
+def create_product(sender,instance,*args,**kwargs):
+    instance.stock=instance.master_product.stock
+
+@receiver(sender=MasterProduct,signal=post_save)
+def update_product(sender,instance,*args,**kwargs):
+    try:
+        if instance.product.id != None:
+            pdt=Product.objects.get(id=instance.product.id)
+            pdt.save()
+    except:
+        pass
