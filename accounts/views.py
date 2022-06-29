@@ -7,9 +7,7 @@ from .models import Image_upload,Notification,Mobile
 from .serializers import UserSerializer,ImageSerializer,UserShortSerializer,NotificationSerializer,MobileSerializer
 from constantVariables import *
 import random
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_cookie, vary_on_headers
+from django.core.cache import caches
 
 class RegisterViewset(viewsets.ModelViewSet):
     permission_classes=[AllowAny]
@@ -118,14 +116,29 @@ class NotificationViewset(viewsets.ModelViewSet):
 class Otpviewset(viewsets.ModelViewSet):
     permission_classes=[AllowAny]
     queryset=Mobile.objects.all()
-
-    @method_decorator(cache_page(30,cache='otp_cache'))
     def list(self, request, *args, **kwargs):
         number=request.data['mobile_number']
-        print(number)
         try:
             queryset=self.get_queryset().get(mobile_number=number)
             otp=random.randint(1000,9999)
-            return Response({'status':True,'otp':otp,'message':'Otp Sent'})
+            cache=caches['otp_cache']
+            cache.set('otp',otp)
+            cache.set('number',number)
+            return Response({'status':True,'otp':otp,'number':number,'message':'otp sent'})
         except:
-            return Response({'status':False,'data':None,'message':'Otp not Sent'})
+            return Response({'status':False,'otp':None,'message':'Otp not Sent'})
+
+class ConfirmViewset(viewsets.ModelViewSet):
+    permission_classes=[AllowAny]
+    queryset=Mobile.objects.all()
+
+    def list(self,request,*args,**kwargs):
+        user_otp=request.data['otp']
+        user_number=request.data['number']
+        cache=caches['otp_cache']
+        otp=cache.get('otp')
+        number=cache.get('number')
+        if user_otp == otp and user_number == number:
+            return Response({'status':True,'message':'Otp confirmed'})
+        else:
+            return Response({'status':False,'message':'Otp not verified'})

@@ -38,13 +38,14 @@ router.register('image',accouts_view.ImageViewset)
 router.register('usershort',accouts_view.UserShortViewset)
 router.register('notification',accouts_view.NotificationViewset)
 router.register('mobile',accouts_view.Otpviewset)
-# router.register('confirm',accouts_view.ConfirmViewset)
+router.register('confirm',accouts_view.ConfirmViewset)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include(router.urls)),
     path('api/login/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/login/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh')
+    path('api/login/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/slogin/', include('rest_social_auth.urls_jwt_pair')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
