@@ -2,12 +2,12 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
-from django.db.models import Prefetch
 from .models import Image_upload,Notification,Mobile
-from .serializers import UserSerializer,ImageSerializer,UserShortSerializer,NotificationSerializer,MobileSerializer
+from .serializers import UserSerializer,ImageSerializer,UserShortSerializer,NotificationSerializer,SocialSerializer
 from constantVariables import *
 import random
 from django.core.cache import caches
+from django.db.models import Q
 
 class RegisterViewset(viewsets.ModelViewSet):
     permission_classes=[AllowAny]
@@ -24,16 +24,20 @@ class RegisterViewset(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data=request.data
-        password_entry=data['password']
-        if len(password_entry) < 8:
-            return Response({'status':False,'data':None,'message':PASSWORD_VALIDATION})
-        else:
-            serializer=UserSerializer(data=data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({'status':True,'data':None,'message':USER_CREATED})
-            else:
+        try:
+            user_obj=User.objects.get(Q(username=data['username']) | Q(email=data['email']))
+            serializer=UserShortSerializer(user_obj)
+            return Response({'status':False,'data':serializer.data,'message':'User already exists'})
+        except:
+            try:
+                user=User.objects.create(username=data['username'],email=data['email'])
+                user.set_password(data['password'])
+                user.save()
+                serializer=UserShortSerializer(user)
+                return Response({'status':True,'data':serializer.data,'message':USER_CREATED})
+            except:
                 return Response({'status':False,'data':None,'message':USER_NOT_CREATED})
+
 
 
 class ImageViewset(viewsets.ModelViewSet):
@@ -60,7 +64,7 @@ class ImageViewset(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         try:
-            data=request.data
+            data=request.FILES
             data['user']=request.user.id
             instance=self.get_object()
             serializer=self.get_serializer(instance,data=data)
@@ -142,3 +146,29 @@ class ConfirmViewset(viewsets.ModelViewSet):
             return Response({'status':True,'message':'Otp confirmed'})
         else:
             return Response({'status':False,'message':'Otp not verified'})
+
+
+class SocialViewset(viewsets.ModelViewSet):
+    permission_classes=[AllowAny]
+    queryset=User.objects.all()
+    serializer_class=SocialSerializer
+
+    def create(self, request, *args, **kwargs):
+        data=request.data
+        try:
+            user_obj=User.objects.get(Q(username=data['username']) | Q(email=data['email']))
+            serializer=UserShortSerializer(user_obj)
+            return Response({'status':False,'data':serializer.data,'message':'User already exists'})
+        except:
+            try:
+                user=User.objects.create(username=data['username'],email=data['email'])
+                user.set_password('groceryapp')
+                user.save()
+                serializer=UserShortSerializer(user)
+                return Response({'status':True,'data':serializer.data,'message':USER_CREATED})
+            except:
+                return Response({'status':False,'data':None,'message':USER_NOT_CREATED})
+
+
+
+         

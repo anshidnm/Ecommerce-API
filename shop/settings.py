@@ -69,8 +69,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'master',
-    'social_django',
-    'rest_social_auth',
 ]
 
 MIDDLEWARE = [
@@ -170,14 +168,4 @@ CACHES = {
         'TIMEOUT':100,
     }
 }
-
-AUTHENTICATION_BACKENDS = (
-    'social_core.backends.github.GithubOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
-)
-
-
-SOCIAL_AUTH_GITHUB_KEY = 'dbdb39ee30f5c2d369b7'
-SOCIAL_AUTH_GITHUB_SECRET = 'e38ae079f323345c1b9f9cee94c2d580cc08cacf'
 
